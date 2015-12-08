@@ -17,6 +17,7 @@ DIST_SUBDIRS += nios2
 DIST_SUBDIRS += no_cpu
 DIST_SUBDIRS += or1k
 DIST_SUBDIRS += powerpc
+DIST_SUBDIRS += riscv64 
 DIST_SUBDIRS += sh
 DIST_SUBDIRS += sparc
 DIST_SUBDIRS += sparc64
