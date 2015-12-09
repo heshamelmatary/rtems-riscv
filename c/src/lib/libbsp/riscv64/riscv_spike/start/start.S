@@ -56,14 +56,11 @@ _bsp_start_vector_table_begin:
 
 _bsp_start_vector_table_end:
 
-.size  _start, .-_start
 
 .section .start,"ax"
 .align  4
 .type   _external_start, %function
 .normal_start:
-
-.size  .normal_start, .-.normal_start
 
 .balign 4
 TYPE_FUNC(RISCV_Exception_default)
