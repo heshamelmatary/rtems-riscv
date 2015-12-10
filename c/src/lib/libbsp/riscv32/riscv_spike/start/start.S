@@ -39,10 +39,10 @@ PUBLIC(bsp_start_vector_table_begin)
 PUBLIC(start)
 
 .section .vector, "wax"
-TYPE_FUNC(start)
-SYM(start):
+TYPE_FUNC(_start)
+SYM(_start):
 
-_bsp_start_vector_table_begin:
+bsp_start_vector_table_begin:
   .word .normal_start /* Reset */
   .word _RISCV_Exception_default /* SW exception */
   .word _RISCV_Exception_default /* Data Page Fault */
@@ -54,7 +54,7 @@ _bsp_start_vector_table_begin:
   .word _RISCV_Exception_default /* WAND */
   .word _RISCV_Exception_default /* User interrupt */
 
-_bsp_start_vector_table_end:
+bsp_start_vector_table_end:
 
 
 .section .start,"ax"
