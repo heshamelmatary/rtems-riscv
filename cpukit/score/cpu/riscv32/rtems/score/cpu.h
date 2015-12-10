@@ -849,8 +849,8 @@ typedef struct {
  * value will be used to calculate offsets of structure members.  These
  * offsets will be used in assembler code.
  */
-#define CPU_SIZEOF_POINTER 8
-#define CPU_EXCEPTION_FRAME_SIZE 260
+#define CPU_SIZEOF_POINTER 4 
+#define CPU_EXCEPTION_FRAME_SIZE 128
 #define CPU_PER_CPU_CONTROL_SIZE 0
 
 #ifndef ASM
