@@ -34,7 +34,6 @@
 #include <rtems/score/wkspace.h>
 #include <bsp/linker-symbols.h>
 #include <rtems/score/cpu.h>
-
 void init(void);
 void fini(void);
 
@@ -45,7 +44,6 @@ void _init()
 void _fini()
 {
 }
-
 void _CPU_Exception_frame_print (const CPU_Exception_frame *ctx)
 {
   /* Do nothing */
