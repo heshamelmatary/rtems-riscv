@@ -40,8 +40,7 @@ ENTRY (_start)
 
 MEMORY
 {
-  VECTOR_RAM  (AIW) : ORIGIN = 0x00000000, LENGTH = 0xB0
-  RAM               : ORIGIN = 0x6000000, LENGTH = 0x01000000 /* 16MiB external RAM */
+  RAM               : ORIGIN = 0x0000000, LENGTH = 0x01000000 /* 16MiB external RAM */
 }
 
 REGION_ALIAS ("REGION_START", RAM);
@@ -141,12 +140,12 @@ SECTIONS {
                *(.gcc_except_table .gcc_except_table.*)
        } > REGION_RODATA AT > REGION_RODATA_LOAD
        .tdata :   {
-               __TLS_Data_begin = .;
+               _TLS_Data_begin = .;
                *(.tdata .tdata.* .gnu.linkonce.td.*)
-               __TLS_Data_end = .;
+               _TLS_Data_end = .;
        } > REGION_RODATA AT > REGION_RODATA_LOAD
        .tbss :   {
-               __TLS_BSS_begin = .;
+               _TLS_BSS_begin = .;
                *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon)
                _TLS_BSS_end = .;
        } > REGION_RODATA AT > REGION_RODATA_LOAD
