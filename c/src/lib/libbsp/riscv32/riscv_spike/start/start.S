@@ -44,15 +44,15 @@ SYM(_start):
 
 bsp_start_vector_table_begin:
   .word .normal_start /* Reset */
-  .word _RISCV_Exception_default /* SW exception */
-  .word _RISCV_Exception_default /* Data Page Fault */
-  .word _RISCV_Exception_default /* Timer 0 */
-  .word _RISCV_Exception_default /* Timer 1 */
-  .word _RISCV_Exception_default /* Message int */
-  .word _RISCV_Exception_default /* DMA0 int */
-  .word _RISCV_Exception_default /* DMA1 int */
-  .word _RISCV_Exception_default /* WAND */
-  .word _RISCV_Exception_default /* User interrupt */
+  .word RISCV_Exception_default /* SW exception */
+  .word RISCV_Exception_default /* Data Page Fault */
+  .word RISCV_Exception_default /* Timer 0 */
+  .word RISCV_Exception_default /* Timer 1 */
+  .word RISCV_Exception_default /* Message int */
+  .word RISCV_Exception_default /* DMA0 int */
+  .word RISCV_Exception_default /* DMA1 int */
+  .word RISCV_Exception_default /* WAND */
+  .word RISCV_Exception_default /* User interrupt */
 
 bsp_start_vector_table_end:
 
