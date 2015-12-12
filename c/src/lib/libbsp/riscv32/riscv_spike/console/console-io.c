@@ -61,6 +61,7 @@
 #define SYS_exit 93
 #define SYS_stats 1234
 
+#define SSTATUS_FS          0x00003000
 static void outbyte_console( char );
 static char inbyte_console( void );
 
@@ -76,8 +77,36 @@ static long syscall(long num, long arg0, long arg1, long arg2)
   return a0;
 }
 
+static long handle_frontend_syscall(long which, long arg0, long arg1, long arg2)
+{
+  magic_mem[0] = which;
+  magic_mem[1] = arg0;
+  magic_mem[2] = arg1;
+  magic_mem[3] = arg2;
+  __sync_synchronize();
+  write_csr(mtohost, (long)magic_mem);
+  while (swap_csr(mfromhost, 0) == 0); 
+  return magic_mem[0];
+}
+
+long handle_trap(uint32_t cause, uint32_t epc, uint64_t regs[32])
+{
+  long sys_ret = 0;
+
+  if(cause == 7)
+  {
+    return 0;  
+  }   
+
+  sys_ret = handle_frontend_syscall(regs[17], regs[10], regs[11], regs[12]);
+
+  regs[10] = sys_ret;
+  return epc+4;
+}
+
 void console_initialize_hardware(void)
 {
+	set_csr(sstatus, SSTATUS_FS);
   /* Do nothing */
 }
 
@@ -136,8 +165,8 @@ int console_inbyte_nonblocking(int port)
 
 #include <rtems/bspIo.h>
 
-static void Epiphany_output_char(char c) { console_outbyte_polled( 0, c ); }
+static void RISCV_output_char(char c) { console_outbyte_polled( 0, c ); }
 
-BSP_output_char_function_type BSP_output_char = Epiphany_output_char;
+BSP_output_char_function_type BSP_output_char = RISCV_output_char;
 BSP_polling_getchar_function_type BSP_poll_char =
   (void *)console_inbyte_nonblocking;
