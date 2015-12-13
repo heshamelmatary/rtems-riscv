@@ -41,11 +41,11 @@ ENTRY (_start)
 MEMORY
 {
 	VECTOR						: ORIGIN = 0, LENGTH = 0x1000
-  RAM               : ORIGIN = 0x1000, LENGTH = 0x01000000 /* 16MiB external RAM */
+  RAM               : ORIGIN = 0x01000000, LENGTH = 0x01000000 /* 16MiB external RAM */
 }
 
 REGION_ALIAS ("REGION_START", RAM);
-REGION_ALIAS ("REGION_VECTOR", VECTOR);
+REGION_ALIAS ("REGION_VECTOR", RAM);
 REGION_ALIAS ("REGION_TEXT", RAM);
 REGION_ALIAS ("REGION_TEXT_LOAD", RAM);
 REGION_ALIAS ("REGION_RODATA", RAM);
@@ -82,7 +82,7 @@ SECTIONS {
 
   .vector :
   {
-		. = 0x100;
+		. = 0x10000;
     *(.vector)
     . = ALIGN(bsp_vector_table_size);
     bsp_section_vector_end = .;
