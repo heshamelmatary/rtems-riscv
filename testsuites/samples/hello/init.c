@@ -28,7 +28,7 @@ rtems_task Init(
 )
 {
   rtems_test_begin();
-  printf( "Hello World\n" );
+  printf( "Hello World, oh almost forgot, from RISC-V port ;) \n" );
   rtems_test_end();
   exit( 0 );
 }
