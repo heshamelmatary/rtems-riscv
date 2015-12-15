@@ -119,7 +119,7 @@ static void outbyte_console(char ch)
   buf[buflen++] = ch;
   if (ch == '\n' || buflen == sizeof(buf))
   {
-    syscall(SYS_write, 1, ((long) buf) + 0x5000000, buflen);
+    syscall(SYS_write, 1, ((long) buf) + 0x02974000, buflen);
     buflen = 0;
   }
   return 0;
