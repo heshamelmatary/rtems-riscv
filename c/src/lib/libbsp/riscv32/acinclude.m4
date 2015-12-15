@@ -2,8 +2,10 @@
 AC_DEFUN([RTEMS_CHECK_BSPDIR],
 [
   case "$1" in
-  riscv_spike )
-    AC_CONFIG_SUBDIRS([riscv_spike]);;
+  riscv_generic )
+    AC_CONFIG_SUBDIRS([riscv_generic]);;
+  riscv_seL4 )
+    AC_CONFIG_SUBDIRS([riscv_seL4]);;
   *)
     AC_MSG_ERROR([Invalid BSP]);;
   esac
