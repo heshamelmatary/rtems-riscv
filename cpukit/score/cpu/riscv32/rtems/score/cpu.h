@@ -543,18 +543,33 @@ static inline uint32_t riscv_interrupt_disable( void )
 {
   register uint32_t sstatus;
   register uint32_t temp;
+#ifdef SEL4
   __asm__ __volatile__ ("csrr %[sstatus], sstatus; \t"
                         "andi %[temp], %[sstatus], -2; \t"
                         "csrw sstatus, %[temp]; \t"
                         : [temp] "=r" (temp) : [sstatus] "r" (sstatus):
                         );
+#else
+  __asm__ __volatile__ ("csrr %[sstatus], mstatus; \t"
+                        "andi %[temp], %[sstatus], -2; \t"
+                        "csrw mstatus, %[temp]; \t"
+                        : [temp] "=r" (temp) : [sstatus] "r" (sstatus):
+                        );
+
+#endif
   return sstatus;
 }
 
 static inline void riscv_interrupt_enable(uint32_t level)
 {
+#ifdef SEL4
   __asm__ __volatile__ ("csrw sstatus, %[level];"
                         :: [level] "r" (level):);
+#else
+  __asm__ __volatile__ ("csrw mstatus, %[level];"
+                        :: [level] "r" (level):);
+
+#endif
 }
 
 #define _CPU_ISR_Disable( _level ) \
