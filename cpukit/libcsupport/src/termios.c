@@ -926,14 +926,14 @@ rtems_termios_ioctl (void *arg)
     flags = *((int *)args->buffer);
 
     if (flags == 0) {
-      flags = FREAD | FWRITE;
+      flags = _FREAD | _FWRITE;
     } else {
-      flags &= FREAD | FWRITE;
+      flags &= _FREAD | _FWRITE;
     }
-    if (flags & FWRITE) {
+    if (flags & _FWRITE) {
       flushOutput (tty);
     }
-    if (flags & FREAD) {
+    if (flags & _FREAD) {
       flushInput (tty);
     }
     break;
