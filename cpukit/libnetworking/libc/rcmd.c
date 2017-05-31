@@ -121,7 +121,7 @@ rcmd(
 #endif
 			return (-1);
 		}
-		fcntl(s, F_SETOWN, pid);
+		fcntl(s, FIOSETOWN, pid);
 		bzero(&sin, sizeof sin);
 		sin.sin_len = sizeof(struct sockaddr_in);
 		sin.sin_family = hp->h_addrtype;

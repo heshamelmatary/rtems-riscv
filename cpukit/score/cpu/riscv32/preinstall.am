@@ -35,6 +35,10 @@ $(PROJECT_INCLUDE)/rtems/score/cpuatomic.h: rtems/score/cpuatomic.h $(PROJECT_IN
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/score/cpuatomic.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/score/cpuatomic.h
 
+$(PROJECT_INCLUDE)/rtems/score/cpuimpl.h: rtems/score/cpuimpl.h $(PROJECT_INCLUDE)/rtems/score/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/score/cpuimpl.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/score/cpuimpl.h
+
 $(PROJECT_INCLUDE)/rtems/score/cpu_asm.h: rtems/score/cpu_asm.h $(PROJECT_INCLUDE)/rtems/score/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/score/cpu_asm.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/score/cpu_asm.h
