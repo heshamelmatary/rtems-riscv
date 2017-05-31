@@ -6,20 +6,20 @@
 #
 
 AC_PREREQ(2.69)
-AC_INIT([rtems-c-src-lib-libbsp-vscale_generic],[_RTEMS_VERSION],[http://www.rtems.org/bugzilla])
+AC_INIT([rtems-c-src-lib-libbsp-riscv_generic],[_RTEMS_VERSION],[http://www.rtems.org/bugzilla])
 AC_CONFIG_SRCDIR([bsp_specs])
 RTEMS_TOP(../../../../../..)
 
 RTEMS_CANONICAL_TARGET_CPU
-AM_INIT_AUTOMAKE([no-define nostdinc foreign subdir-objects 1.12.2])
+AM_INIT_AUTOMAKE([no-define nostdinc foreign 1.12.2])
 RTEMS_BSP_CONFIGURE
 
 RTEMS_BSPOPTS_SET([BSP_START_RESET_VECTOR],[*],[])
 RTEMS_BSPOPTS_HELP([BSP_START_RESET_VECTOR],[reset vector address for BSP
 start])
 
-RTEMS_BSPOPTS_SET([BSP_EPIPHANY_PERIPHCLK],[*],[100000000U])
-RTEMS_BSPOPTS_HELP([BSP_EPIPHANY_PERIPHCLK],[riscv PERIPHCLK clock
+RTEMS_BSPOPTS_SET([BSP_RISCV32_PERIPHCLK],[*],[100000000U])
+RTEMS_BSPOPTS_HELP([BSP_RISCV32_PERIPHCLK],[riscv PERIPHCLK clock
 frequency in Hz])
 
 RTEMS_PROG_CC_FOR_TARGET([-ansi -fasm])

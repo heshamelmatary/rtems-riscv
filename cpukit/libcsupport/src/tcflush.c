@@ -27,13 +27,13 @@ int tcflush( int fd, int which )
 
   switch (which) {
   case TCIFLUSH:
-    com = FREAD;
+    com = _FREAD;
     break;
   case TCOFLUSH:
-    com = FWRITE;
+    com = _FWRITE;
     break;
   case TCIOFLUSH:
-    com = FREAD | FWRITE;
+    com = _FREAD | _FWRITE;
     break;
   default:
     rtems_set_errno_and_return_minus_one( EINVAL );

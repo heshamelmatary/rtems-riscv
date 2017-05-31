@@ -438,7 +438,7 @@ typedef Context_Control CPU_Interrupt_frame;
  */
 
 #define CPU_CONTEXT_FP_SIZE  0
-SCORE_EXTERN Context_Control_fp  _CPU_Null_fp_context;
+Context_Control_fp  _CPU_Null_fp_context;
 
 /*
  *  Amount of extra stack (above minimum stack size) required by
@@ -847,6 +847,8 @@ void _CPU_Context_Initialize(
   (_priority)
 
 #endif
+
+#define CPU_MAXIMUM_PROCESSORS 32
 
 #define CPU_TIMESTAMP_USE_STRUCT_TIMESPEC FALSE
 #define CPU_TIMESTAMP_USE_INT64 TRUE
