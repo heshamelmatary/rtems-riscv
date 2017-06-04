@@ -43,7 +43,7 @@ PUBLIC(_start)
 
 .section .vector, "ax"
 /* 0x100 user-level trap */
-  mrts
+  #mrts
   #la s0, 0xF0000000
   #jr  s0
 /* 0x140 supervisor level trap */
@@ -215,4 +215,4 @@ trap_entry:
 
   addi sp, sp, 272
 
-  eret
+  mret
