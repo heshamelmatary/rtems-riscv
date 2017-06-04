@@ -17,7 +17,7 @@ dist_project_lib_DATA = bsp_specs
 ###############################################################################
 
 include_HEADERS = include/bsp.h
-include_HEADERS += include/tm27.h
+include_HEADERS += ../../shared/include/tm27.h
 include_HEADERS += ../../shared/include/coverhd.h
 
 nodist_include_bsp_HEADERS = ../../shared/include/bootcard.h
@@ -57,10 +57,10 @@ libbsp_a_SOURCES += ../../shared/bspstart.c
 # Shared
 libbsp_a_SOURCES += ../../shared/bootcard.c
 libbsp_a_SOURCES += ../../shared/bspclean.c
-libbsp_a_SOURCES += ../../shared/bsplibc.c
-libbsp_a_SOURCES += ../../shared/bsppost.c
+#libbsp_a_SOURCES += ../../shared/bsplibc.c
+#libbsp_a_SOURCES += ../../shared/bsppost.c
 libbsp_a_SOURCES += ../../shared/bsppredriverhook.c
-libbsp_a_SOURCES += ../../shared/bsppretaskinghook.c
+#libbsp_a_SOURCES += ../../shared/bsppretaskinghook.c
 libbsp_a_SOURCES += ../../shared/gnatinstallhandler.c
 libbsp_a_SOURCES += ../../shared/sbrk.c
 libbsp_a_SOURCES += ../../shared/src/stackalloc.c
