@@ -5,7 +5,7 @@
 # @brief Configure script of LibBSP for riscv_spike BSP.
 #
 
-AC_PREREQ(2.69)
+AC_PREREQ([2.69])
 AC_INIT([rtems-c-src-lib-libbsp-riscv_generic],[_RTEMS_VERSION],[http://www.rtems.org/bugzilla])
 AC_CONFIG_SRCDIR([bsp_specs])
 RTEMS_TOP(../../../../../..)
