@@ -40,7 +40,7 @@ noinst_LIBRARIES = libbspstart.a
 
 libbspstart_a_SOURCES = start/start.S
 
-project_lib_DATA = start/start.$(OBJEXT)
+project_lib_DATA = start.$(OBJEXT)
 
 project_lib_DATA += startup/linkcmds
 

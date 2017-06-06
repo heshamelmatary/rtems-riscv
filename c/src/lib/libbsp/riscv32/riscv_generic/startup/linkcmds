@@ -40,8 +40,8 @@ ENTRY (_start)
 
 MEMORY
 {
-	VECTOR						: ORIGIN = 0, LENGTH = 0x1000
-  RAM               : ORIGIN = 0x0000000, LENGTH = 0x01000000 /* 16MiB external RAM */
+  VECTOR : ORIGIN = 0x0000000080000000, LENGTH = 0x1000
+  RAM    : ORIGIN = 0x0000000080000000, LENGTH = 0x10000000
 }
 
 REGION_ALIAS ("REGION_VECTOR", RAM);
@@ -52,6 +52,8 @@ REGION_ALIAS ("REGION_RODATA", RAM);
 REGION_ALIAS ("REGION_RODATA_LOAD", RAM);
 REGION_ALIAS ("REGION_DATA", RAM);
 REGION_ALIAS ("REGION_DATA_LOAD", RAM);
+REGION_ALIAS ("REGION_HTIF", RAM);
+REGION_ALIAS ("REGION_HTIF_LOAD", RAM);
 REGION_ALIAS ("REGION_FAST_DATA", RAM);
 REGION_ALIAS ("REGION_FAST_DATA_LOAD", RAM);
 REGION_ALIAS ("REGION_BSS", RAM);
@@ -59,8 +61,7 @@ REGION_ALIAS ("REGION_WORK", RAM);
 REGION_ALIAS ("REGION_STACK", RAM);
 
 /* The following address is used for text output */
-bsp_section_outbut_buffer = 0x8F800000;
-bsp_section_vector_begin  = 0x00000000;
+bsp_section_vector_begin  = 0x0000000080000000;
 
 /*
  * Global symbols that may be defined externally
@@ -80,9 +81,8 @@ _bsp_processor_count = DEFINED (_bsp_processor_count) ? _bsp_processor_count : 1
 
 SECTIONS {
 
-  .vector :
+  .vector 0x0000000080000000:
   {
-		. = 0x100;
     *(.vector)
     . = ALIGN(bsp_vector_table_size);
     bsp_section_vector_end = .;
@@ -305,6 +305,17 @@ SECTIONS {
   bsp_section_rodata_size = bsp_section_rodata_end - bsp_section_rodata_begin;
   bsp_section_rodata_load_begin = LOADADDR (.rodata);
   bsp_section_rodata_load_end = bsp_section_rodata_load_begin + bsp_section_rodata_size;
+
+  /*--------------------------------------------------------------------*/
+  /* HTIF, isolated onto separate page                                  */
+  /*--------------------------------------------------------------------*/
+  .htif :
+  {
+    . = ALIGN(0x1000);
+    *(.htif)
+    . = ALIGN(0x1000);
+  } > REGION_HTIF AT > REGION_HTIF_LOAD
+
 
 .rwbarrier :   {
     . = ALIGN(8);

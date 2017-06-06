@@ -31,97 +31,126 @@
 #include <assert.h>
 #include <stdio.h>
 
-/* TODO: move this to riscv-utility */
-#define read_csr(reg) ({ unsigned long __tmp; \
-  asm volatile ("csrr %0, " #reg : "=r"(__tmp)); \
-  __tmp; })
+#if __riscv_xlen == 64                                                        
+# define TOHOST_CMD(dev, cmd, payload) \                                      
+  (((uint64_t)(dev) << 56) | ((uint64_t)(cmd) << 48) | (uint64_t)(payload))   
+#else                                                                         
+# define TOHOST_CMD(dev, cmd, payload) ({ \                                   
+  if ((dev) || (cmd)) __builtin_trap(); \                                     
+  (payload); })                                                               
+#endif                                                                        
+#define FROMHOST_DEV(fromhost_value) ((uint64_t)(fromhost_value) >> 56)       
+#define FROMHOST_CMD(fromhost_value) ((uint64_t)(fromhost_value) << 8 >> 56)  
+#define FROMHOST_DATA(fromhost_value) ((uint64_t)(fromhost_value) << 16 >> 16)
 
-#define write_csr(reg, val) \
-  asm volatile ("csrw " #reg ", %0" :: "r"(val))
+volatile uint64_t tohost __attribute__((section(".htif")));
+volatile uint64_t fromhost __attribute__((section(".htif")));
+volatile int htif_console_buf;
+//static spinlock_t htif_lock = SPINLOCK_INIT;
 
-#define swap_csr(reg, val) ({ long __tmp; \
-  asm volatile ("csrrw %0, " #reg ", %1" : "=r"(__tmp) : "r"(val)); \
-  __tmp; })
-
-#define set_csr(reg, bit) ({ unsigned long __tmp; \
-  if (__builtin_constant_p(bit) && (bit) < 32) \
-    asm volatile ("csrrs %0, " #reg ", %1" : "=r"(__tmp) : "i"(bit)); \
-  else \
-    asm volatile ("csrrs %0, " #reg ", %1" : "=r"(__tmp) : "r"(bit)); \
-  __tmp; })
-
-#define clear_csr(reg, bit) ({ unsigned long __tmp; \
-  if (__builtin_constant_p(bit) && (bit) < 32) \
-    asm volatile ("csrrc %0, " #reg ", %1" : "=r"(__tmp) : "i"(bit)); \
-  else \
-    asm volatile ("csrrc %0, " #reg ", %1" : "=r"(__tmp) : "r"(bit)); \
-  __tmp; })
-
-#define SYS_write 64
-#define SYS_exit 93
-#define SYS_stats 1234
-
-#define SSTATUS_FS          0x00003000
-static void outbyte_console( char );
-static char inbyte_console( void );
-
-volatile uint64_t magic_mem[8] __attribute__((aligned(64)));
-
-static long syscall(long num, long arg0, long arg1, long arg2)
+static void __check_fromhost()
 {
-  register long a7 asm("a7") = num;
-  register long a0 asm("a0") = arg0;
-  register long a1 asm("a1") = arg1;
-  register long a2 asm("a2") = arg2;
-  asm volatile ("ecall" : "+r"(a0) : "r"(a1), "r"(a2), "r"(a7));
-  return a0;
+  uint64_t fh = fromhost;
+  if (!fh)
+    return;
+  fromhost = 0;
+
+  // this should be from the console
+  assert(FROMHOST_DEV(fh) == 1);
+  switch (FROMHOST_CMD(fh)) {
+    case 0:
+      htif_console_buf = 1 + (uint8_t)FROMHOST_DATA(fh);
+      break;
+    case 1:
+      break;
+    default:
+      assert(0);
+  }
 }
 
-static long handle_frontend_syscall(long which, long arg0, long arg1, long arg2)
+static void __set_tohost(uintptr_t dev, uintptr_t cmd, uintptr_t data)
 {
-  magic_mem[0] = which;
-  magic_mem[1] = arg0;
-  magic_mem[2] = arg1;
-  magic_mem[3] = arg2;
-  __sync_synchronize();
-  write_csr(mtohost, (long)magic_mem);
-  while (swap_csr(mfromhost, 0) == 0); 
-  return magic_mem[0];
+  while (tohost)
+    __check_fromhost();
+  tohost = TOHOST_CMD(dev, cmd, data);
+}
+
+int htif_console_getchar()
+{
+    __check_fromhost();
+    int ch = htif_console_buf;
+    if (ch >= 0) {
+      htif_console_buf = -1;
+      __set_tohost(1, 0, 0);
+    }
+
+  return ch - 1;
+}
+
+static void do_tohost_fromhost(uintptr_t dev, uintptr_t cmd, uintptr_t data)
+{
+    __set_tohost(dev, cmd, data);
+
+    while (1) {
+      uint64_t fh = fromhost;
+      if (fh) {
+        if (FROMHOST_DEV(fh) == dev && FROMHOST_CMD(fh) == cmd) {
+          fromhost = 0;
+          break;
+        }
+        __check_fromhost();
+      }
+    }
+}
+
+void htif_syscall(uintptr_t arg)
+{
+  do_tohost_fromhost(0, 0, arg);
+}
+
+void htif_console_putchar(uint8_t ch)
+{
+    __set_tohost(1, 1, ch);
+}
+
+long frontend_syscall(long n, uint64_t a0, uint64_t a1, uint64_t a2, uint64_t a3, uint64_t a4, uint64_t a5, uint64_t a6)
+{
+  static volatile uint64_t magic_mem[8];
+
+  magic_mem[0] = n;
+  magic_mem[1] = a0;
+  magic_mem[2] = a1;
+  magic_mem[3] = a2;
+  magic_mem[4] = a3;
+  magic_mem[5] = a4;
+  magic_mem[6] = a5;
+  magic_mem[7] = a6;
+
+  htif_syscall((uintptr_t)magic_mem);
+
+  long ret = magic_mem[0];
+
+  return ret;
 }
 
 long handle_trap(uint32_t cause, uint32_t epc, uint64_t regs[32])
 {
-  long sys_ret = 0;
+  /*FIXME: Currently only handling outchar traps */
+  htif_console_putchar(regs[10]);
 
-  if(cause == 7)
-  {
-    return 0;  
-  }   
-
-  sys_ret = handle_frontend_syscall(regs[17], regs[10], regs[11], regs[12]);
-
-  regs[10] = sys_ret;
   return epc+4;
 }
 
+/* TODO: move this to riscv-utility */
+
 void console_initialize_hardware(void)
 {
-	set_csr(sstatus, SSTATUS_FS);
-	set_csr(mstatus, SSTATUS_FS);
   /* Do nothing */
 }
 
-static char buf[64] __attribute__((aligned(64)));
-static int  buflen = 0;
-
 static void outbyte_console(char ch)
 {
-  buf[buflen++] = ch;
-  if (ch == '\n' || buflen == sizeof(buf))
-  {
-    syscall(SYS_write, 1, ((long) buf), buflen);
-    buflen = 0;
-  }
+  frontend_syscall(1, ch, 0, 0, 0, 0, 0, 0);
   return 0;
 }
 
