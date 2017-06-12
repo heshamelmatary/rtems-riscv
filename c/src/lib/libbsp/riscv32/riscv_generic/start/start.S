@@ -41,29 +41,6 @@ PUBLIC(RISCV_Exception_default)
 PUBLIC(bsp_start_vector_table_begin)
 PUBLIC(_start)
 
-.section .vector, "ax"
-/* 0x100 user-level trap */
-  #mrts
-  #la s0, 0xF0000000
-  #jr  s0
-/* 0x140 supervisor level trap */
-  .align 6
-  #mrts
-  la s0, trap_entry
-  jr s0
-/* 0x1C0 Machine level trap */
-  .align 6
-  la s0, trap_entry
-  jr s0
-/* 0x1FC external interrupt */
-  .align 6
-  la s0, trap_entry
-  jr s0
-/* 0x200 reset */
-  .align 6
-  la s0, _start
-  jr s0
-
 .section .start, "wax"
 TYPE_FUNC(_start)
 SYM(_start):
@@ -98,6 +75,9 @@ SYM(_start):
   li x30,0
   li x31,0
 
+  la t0, RISCV_Exception_default 
+  csrw mtvec, t0    
+
   /* load stack and frame pointers */
   la sp, bsp_section_stack_begin
 
@@ -117,19 +97,27 @@ _end_clear_bss:
   nop
 
 bsp_start_vector_table_begin:
-  .word .normal_start /* Reset */
-  .word RISCV_Exception_default /* SW exception */
-  .word RISCV_Exception_default /* Data Page Fault */
-  .word RISCV_Exception_default /* Timer 0 */
-  .word RISCV_Exception_default /* Timer 1 */
-  .word RISCV_Exception_default /* Message int */
-  .word RISCV_Exception_default /* DMA0 int */
-  .word RISCV_Exception_default /* DMA1 int */
-  .word RISCV_Exception_default /* WAND */
-  .word RISCV_Exception_default /* User interrupt */
+
+#define BAD_TRAP_VECTOR 0
+  .word RISCV_Exception_default /* bad_trap */
+  .word RISCV_Exception_default /* pmp_trap */
+  .word RISCV_Exception_default /* illegal_insn_trap */
+  .word RISCV_Exception_default /* bad_trap */
+  .word RISCV_Exception_default /* misaligned_load_trap */
+  .word RISCV_Exception_default /* pmp_trap */
+  .word RISCV_Exception_default /* misaligned_store_trap */
+  .word RISCV_Exception_default /* pmp_trap */
+  .word RISCV_Exception_default /* bad_trap */
+  .word RISCV_Exception_default /* mcall_trap*/
+  .word RISCV_Exception_default /* bad_trap */
+  .word RISCV_Exception_default /* bad_trap */
+  .word RISCV_Exception_default /* bad_trap */
+#define TRAP_FROM_MACHINE_MODE_VECTOR 13
+  .word RISCV_Exception_default /* __trap_from_machine_mode */
+  .word RISCV_Exception_default /*bad_trap  */
+  .word RISCV_Exception_default /* bad_trap */
 
 bsp_start_vector_table_end:
-
 
 .section .start,"ax"
 .align  4
@@ -139,9 +127,7 @@ bsp_start_vector_table_end:
 .balign 4
 TYPE_FUNC(RISCV_Exception_default)
 SYM(RISCV_Exception_default):
-  nop
 trap_entry:
-	nop
   addi sp, sp, -272
   SREG x1, 8(sp)
   SREG x2, 16(sp)
