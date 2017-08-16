@@ -1,12 +1,13 @@
 /**
  * @file
  *
- * @ingroup RISCV_IRQ
+ * @ingroup riscv_interrupt
  *
- * @brief Interrupt definitions.
+ * @brief Interrupt support.
  */
 
 /*
+ * RISCV CPU Dependent Source
  *
  * Copyright (c) 2015 University of York.
  * Hesham ALMatary <hmka501@york.ac.uk>
@@ -35,35 +36,53 @@
  * SUCH DAMAGE.
  */
 
-#ifndef LIBBSP_GENERIC_RISCV_IRQ_H
-#define LIBBSP_GENERIC_RISCV_IRQ_H
+#include <bsp/fe310.h>
+#include <bsp/irq.h>
+#include <bsp/irq-generic.h>
 
-#ifndef ASM
+/* Almost all of the jobs that the following functions should
+ * do are implemented in cpukit
+ */
 
-#include <rtems.h>
-#include <rtems/irq.h>
-#include <rtems/irq-extension.h>
+void bsp_interrupt_handler_default(rtems_vector_number vector)
+{
+    printk("spurious interrupt: %u\n", vector);
+}
 
-#define BSP_INTERRUPT_VECTOR_MIN  0x0
-#define BSP_INTERRUPT_VECTOR_MAX  0x24
+rtems_status_code bsp_interrupt_facility_initialize()
+{
+  return 0;
+}
 
+void bsp_interrupt_vector_enable(rtems_vector_number vector)
+{
+  return 0;
+}
 
-#define MCAUSE_INT 0x80000000
-
-#define MCAUSE_MSWI 0x3
-#define MCAUSE_MTIME 0x7
-#define MCAUSE_MEXT 0xB
-
-#define MIE_MSWI (1 << MCAUSE_MSWI)
-#define MIE_MTIME (1 << MCAUSE_MTIME)
-#define MIE_MEXT (1 << MCAUSE_MEXT)
+void bsp_interrupt_vector_disable(rtems_vector_number vector)
+{
+  return 0;
+}
 
 /*
- * Memory mapped timer, timer comparator and software interrupt registers.
+ * FIXME: only timer intrrupt is handled
  */
-#define MTIMECMP  ((volatile uint64_t *)0x02004000)
-#define MTIME     ((volatile uint64_t *)0x0200bff8)
-#define MSIP_REG ((volatile uint32_t *) 0x02000000)
+void handle_trap (uint32_t cause)
+{
+    if (cause & MCAUSE_INT) { 
+      /* an interrupt occurred */
+      if ((cause & MCAUSE_MTIME) == MCAUSE_MTIME) {
+	/* Timer interrupt */
+        (*MTIMECMP) = (*MTIME) + FE310_CLOCK_PERIOD;
+        bsp_interrupt_handler_table[1].handler(bsp_interrupt_handler_table[1].arg);
+      } else if ((cause & MCAUSE_MEXT) == MCAUSE_MEXT) {
+	      /*External interrupt */
+      } else if ((cause & MCAUSE_MSWI) == MCAUSE_MSWI) {
+	      /* Software interrupt */
+	      *MSIP_REG = 0;
+      }
+    } else {
+      /* an exception occurred */
+    }
 
-#endif /* ASM */
-#endif /* LIBBSP_GENERIC_RISCV_IRQ_H */
+}

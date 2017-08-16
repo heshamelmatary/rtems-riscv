@@ -207,7 +207,8 @@ trap_entry:
   csrr t0, mcause
   SREG t0, 33*REGBYTES(sp)
 
-  call handle_trap_new
+  mv   a0, t0
+  call handle_trap
 
   LREG t0, 32*REGBYTES(sp)
   csrw mepc, t0
