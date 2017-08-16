@@ -549,8 +549,10 @@ static inline uint32_t riscv_interrupt_disable( void )
                         : [temp] "=r" (temp) : [sstatus] "r" (sstatus):
                         );
 #elif FE3XX
+  /* FIXME: level variable isn't saved between disable/enable calls */
   __asm__ volatile ("csrci mstatus, 0x8");
   (void)temp;
+  sstatus = 0;
 #else
   __asm__ __volatile__ ("csrr %[sstatus], mstatus; \t"
                         "andi %[temp], %[sstatus], -2; \t"
