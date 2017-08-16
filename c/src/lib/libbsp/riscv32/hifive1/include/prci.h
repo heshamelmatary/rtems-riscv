@@ -56,6 +56,10 @@
 #define HFROSC_TRIM_OFFSET 16
 #define HFROSC_EN_OFFSET 30
 #define HFROSC_RDY_OFFSET 31
+#define HFROSC_DIV_MASK 0x2F
+#define HFROSC_TRIM_MASK 0x1F
+#define HFROSC_EN_MASK 0x1
+
 
 /* 
  * HFXOSCCFG configuration register values
@@ -69,7 +73,12 @@
  * PLLCFG configuration register
  */
 #define PLL_SEL_OFFSET 16
+#define PLL_REF_SEL_OFFSET 17
+#define PLL_BYPASS_OFFSET 18
+#define PLL_LOCK_OFFSET 31
 
 uint32_t hifive1_current_freq();
+
+void fe310_initialize_oscills();
 
 #endif /* PRCI_H */

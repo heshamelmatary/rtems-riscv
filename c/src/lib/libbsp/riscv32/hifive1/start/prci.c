@@ -26,7 +26,47 @@
  */
 
 #include <bsp/prci.h>
+#include <bsp/fe310.h>
 
 uint32_t hifive1_current_freq() {
   return hifive1_default_freq;
+}
+
+void fe310_initialize_oscills() {
+  volatile uint32_t * pll_reg = (volatile uint32_t *) PRCI_PLLCFG;
+  volatile uint32_t * high_freq_reg = (volatile uint32_t *) PRCI_HFROSCCFG;
+
+#ifdef USE_HFROSC
+  /* Setting up osc frequency */
+  uint32_t tmp_reg = 0;
+  /* Install divider in high frequency oscillator */
+  tmp_reg |= (HFROSC_DIV_VAL & HFROSC_DIV_MASK) << HFROSC_DIV_OFFSET;
+  tmp_reg |= (HFROSC_TRIM_VAL & HFROSC_TRIM_MASK) << HFROSC_TRIM_OFFSET;
+  tmp_reg |= (HFROSC_EN_VAL & HFROSC_EN_MASK) << HFROSC_EN_OFFSET;
+  (*high_freq_reg) = tmp_reg; 
+  while (( (*high_freq_reg) & ((HFROSC_RDY_VAL & 0x1) \
+                  << HFROSC_RDY_OFFSET)) == 0 ) {
+    ;             
+  } 
+#endif /* USE_HFROSC */
+
+#ifdef USE_HFXOSC
+  volatile uint32_t * ext_freq_reg = (volatile uint32_t *) PRCI_HFXOSCCFG;
+  (*ext_freq_reg) |= ((HFXOSC_EN_VAL & 0x1) << HFXOSC_EN_OFFSET);
+  while (( (*ext_freq_reg) & ((HFXOSC_RDY_VAL & 0x1) \
+                  << HFXOSC_RDY_OFFSET)) == 0 ) {
+    ;             
+  }
+  (*pll_reg) |= (0x1 << PLL_BYPASS_OFFSET);
+  (*pll_reg) |= (0x1 << PLL_REF_SEL_OFFSET);
+  (*pll_reg) |= (0x1 << PLL_SEL_OFFSET);
+  (*high_freq_reg) &= ~(0x1 << HFROSC_EN_OFFSET);
+  
+#endif /* USE_HFXOSC */
+#ifndef USE_PLL
+  /* Disable PLL */
+  (*pll_reg) &= ~(0x1 << PLL_SEL_OFFSET);
+#else 
+
+#endif
 }
