@@ -47,7 +47,6 @@
 #define BSP_INTERRUPT_VECTOR_MIN  0x0
 #define BSP_INTERRUPT_VECTOR_MAX  0x24
 
-
 #define MCAUSE_INT 0x80000000
 
 #define MCAUSE_MSWI 0x3
@@ -64,6 +63,11 @@
 #define MTIMECMP  ((volatile uint64_t *)0x02004000)
 #define MTIME     ((volatile uint64_t *)0x0200bff8)
 #define MSIP_REG ((volatile uint32_t *) 0x02000000)
+
+static inline void enable_mtime_interrupts() {
+    asm volatile ("li t0, 0x80\n\t"
+                  "csrs mie, t0");
+}
 
 #endif /* ASM */
 #endif /* LIBBSP_GENERIC_RISCV_IRQ_H */

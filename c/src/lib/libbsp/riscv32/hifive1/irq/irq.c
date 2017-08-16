@@ -72,8 +72,8 @@ void handle_trap (uint32_t cause)
     if (cause & MCAUSE_INT) { 
       /* an interrupt occurred */
       if ((cause & MCAUSE_MTIME) == MCAUSE_MTIME) {
-	/* Timer interrupt */
-        (*MTIMECMP) = (*MTIME) + FE310_CLOCK_PERIOD;
+    	/* Timer interrupt */
+        /* TODO: Proper (not manual) dispatching should be implemented */
         bsp_interrupt_handler_table[1].handler(bsp_interrupt_handler_table[1].arg);
       } else if ((cause & MCAUSE_MEXT) == MCAUSE_MEXT) {
 	      /*External interrupt */

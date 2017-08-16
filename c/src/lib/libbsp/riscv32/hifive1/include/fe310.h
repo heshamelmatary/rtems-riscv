@@ -23,8 +23,6 @@
 #define USE_PLL
 
 /* Clock parameters */
-#define FE310_CLOCK_PERIOD 512
-#define CONFIGURE_MICROSECONDS_PER_TICK 15625
-
+#define FE310_CLOCK_FREQ 32768
 
 #endif /* FE310_H */
