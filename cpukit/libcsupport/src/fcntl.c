@@ -182,12 +182,12 @@ static int vfcntl(
       ret = -1;
       break;
 
-    case FIOSETOWN:       /*  for sockets. */
+    case F_SETOWN:       /*  for sockets. */
       errno = ENOTSUP;
       ret = -1;
       break;
 
-    case FIOGETOWN:       /*  for sockets. */
+    case F_GETOWN:       /*  for sockets. */
       errno = ENOTSUP;
       ret = -1;
       break;
