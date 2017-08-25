@@ -46,6 +46,7 @@ PUBLIC(restore)
 
 SYM(_CPU_Context_switch):
   /* Disable interrupts and store all registers */
+  csrci mstatus, 0x8
   SREG x1, 4(a0)
   SREG x2, 8(a0)
   SREG x3, 12(a0)
@@ -78,8 +79,9 @@ SYM(_CPU_Context_switch):
   SREG x30, 120(a0)
   SREG x31, 124(a0)
 
-SYM(restore):
 
+SYM(restore):
+    
   LREG x1, 4(a1)
   LREG x2, 8(a1)
   LREG x3, 12(a1)
@@ -111,9 +113,15 @@ SYM(restore):
   LREG x29, 116(a1)
   LREG x30, 120(a1)
   LREG x31, 124(a1)
-	ret
+
+
+  csrsi mstatus, 0x8
+  nop
+  nop
+  ret
 
 SYM(_CPU_Context_restore):
+  csrci mstatus, 0x8
   mv     a1, a0
   j       restore
   nop
